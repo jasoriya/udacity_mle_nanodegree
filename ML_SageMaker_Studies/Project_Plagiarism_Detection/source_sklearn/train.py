@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.externals import joblib
 
 ## TODO: Import any additional libraries you need to define a model
-
+from sklearn.ensemble import RandomForestClassifier
 
 # Provided model load function
 def model_fn(model_dir):
@@ -39,6 +39,16 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     
     ## TODO: Add any additional arguments that you will need to pass into your model
+    parser.add_argument('--n_estimators', type=int, default=100, metavar='N',
+                        help='number of trees in forest (default: 100)')
+    parser.add_argument('--max_depth', type=int, default=8, metavar='N',
+                        help='max depth of trees (default: 8)')
+    parser.add_argument('--min_samples_split', type=int, default=2, metavar='N',
+                        help='minimum number of samples required to split an internal node (default: 2)')
+    
+    # SageMaker does not support sklearn version 0.22 as of 05/20/2020
+    # parser.add_argument('--ccp_alpha', type=float, default=0., metavar='N',
+    #                    help='complexity parameter used for Minimal Cost-Complexity Pruning (default: 0.0)')
     
     # args holds all passed-in arguments
     args = parser.parse_args()
@@ -56,11 +66,14 @@ if __name__ == '__main__':
     
 
     ## TODO: Define a model 
-    model = None
-    
+    model = RandomForestClassifier(n_estimators=args.n_estimators, 
+                                   max_depth=args.max_depth, 
+                                   min_samples_split=args.min_samples_split, 
+                                   random_state=42, 
+                                   verbose=1)
     
     ## TODO: Train the model
-    
+    model.fit(train_x, train_y)
     
     
     ## --- End of your code  --- ##
